@@ -17,6 +17,6 @@
         }
     },
     "require": {
-        "europaphp/module-main": "*"
+        "europaphp/module-main": "dev-master"
     }
 }
