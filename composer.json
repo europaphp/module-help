@@ -1,0 +1,22 @@
+{
+    "name": "europaphp/module-help",
+    "description": "Command Line Help Module for EuropaPHP 2",
+    "keywords": ["cli", "help", "man"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Trey Shugart",
+            "email": "treshugart@gmail.com",
+            "homepage": "http://iamtres.com",
+            "role": "Lead Developer"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Controller": "src"
+        }
+    },
+    "require": {
+        "europaphp/module-main": "*"
+    }
+}
