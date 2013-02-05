@@ -61,8 +61,11 @@ class Help extends ControllerAbstract
     private function getClassNames()
     {
         $finder = new Finder;
-        $finder->in($this->config['searchIn']);
         $finder->is('/\.php$/');
+
+        foreach ($finder->in($this->config['searchIn']) as $path) {
+            $finder->in($path);
+        }
 
         $classes = [];
 

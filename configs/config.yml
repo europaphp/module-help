@@ -1,7 +1,9 @@
 name: europaphp/help
 version: 0.1.0
-searchIn: "{_root.basePath}/vendor/*/*/src/Controller"
-namespace: Controller
-action: cli
 requiredModules:
   europaphp/main: 0.1.*
+
+namespace: Controller
+action: cli
+searchIn:
+  - app/*/*/src/Controller
