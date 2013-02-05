@@ -6,4 +6,4 @@ requiredModules:
 namespace: Controller
 action: cli
 searchIn:
-  - app/*/*/src/Controller
+  - "{basePath}/vendor/*/*/src/Controller"
