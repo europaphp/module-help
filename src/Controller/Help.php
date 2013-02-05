@@ -63,7 +63,7 @@ class Help extends ControllerAbstract
         $finder = new Finder;
         $finder->is('/\.php$/');
 
-        foreach ($finder->in($this->config['searchIn']) as $path) {
+        foreach ($this->config['searchIn'] as $path) {
             $finder->in($path);
         }
 
