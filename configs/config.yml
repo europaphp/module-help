@@ -1,9 +1,3 @@
-name: europaphp/help
-version: 0.1.0
-requiredModules:
-  europaphp/main: 0.1.*
-
 namespace: Controller
 action: cli
-searchIn:
-  - "{basePath}/vendor/*/*/src/Controller"
+search-in:

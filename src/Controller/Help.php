@@ -14,9 +14,9 @@ class Help extends ControllerAbstract
 {
     private $config;
 
-    public function __construct()
+    public function init()
     {
-        $this->config = App::get()['europaphp/help']->config();
+        $this->config = $this->service('app.modules')->get('europaphp/help')->getConfig();
     }
 
     /**
@@ -63,8 +63,10 @@ class Help extends ControllerAbstract
         $finder = new Finder;
         $finder->is('/\.php$/');
 
-        foreach ($this->config['searchIn'] as $path) {
-            $finder->in($path);
+        foreach ($this->service('app.modules') as $module) {
+            foreach ($this->config['search-in'] as $path) {
+                $finder->in($module->getPath() . '/' . $path);
+            }
         }
 
         $classes = [];
@@ -147,6 +149,7 @@ class Help extends ControllerAbstract
 
     private function getClassFromCommand($command)
     {
+        var_dump($command);
         $filter = new ClassNameFilter;
         $class  = $filter->__invoke($command);
         $class  = __NAMESPACE__ . '\\' . $class;
