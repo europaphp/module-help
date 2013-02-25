@@ -1,4 +1,4 @@
-<?php $this->extend('cli.php'); ?>
+<?php $this->extend('europaphp/main/layout/cli.php'); ?>
 
 <?php if ($this->context('command')): ?>
 <?php echo $this->context('description') . PHP_EOL; ?>

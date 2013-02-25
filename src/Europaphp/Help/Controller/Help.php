@@ -1,9 +1,7 @@
 <?php
 
-namespace Controller;
-use Europa\App\App;
+namespace Europaphp\Help\Controller;
 use Europa\Controller\ControllerAbstract;
-use Europa\Filter\CamelCaseSplitFilter;
 use Europa\Filter\ClassNameFilter;
 use Europa\Fs\Finder;
 use Europa\Reflection\ClassReflector;
@@ -12,12 +10,7 @@ use SplFileInfo;
 
 class Help extends ControllerAbstract
 {
-    private $config;
-
-    public function init()
-    {
-        $this->config = $this->service('app.modules')->get('europaphp/help')->getConfig();
-    }
+    const ACTION = 'cli';
 
     /**
      * Shows the available commands or documentation for a specific command.
@@ -26,6 +19,8 @@ class Help extends ControllerAbstract
      */
     public function cli($command = null)
     {
+        $this->config = $this->service('modules')->get('europaphp/help')->getConfig();
+
         if ($command) {
             return $this->getCommand($command);
         }
@@ -39,7 +34,7 @@ class Help extends ControllerAbstract
         $class  = new ClassReflector($class);
         $params = $this->getCommandParams($command);
         $params = $this->sortCommandParams($params);
-        
+
         return [
             'command'     => $command,
             'description' => $class->getMethod($this->config['action'])->getDocBlock()->getDescription(),
@@ -52,7 +47,7 @@ class Help extends ControllerAbstract
         $classes  = $this->getClassNames();
         $classes  = $this->sortClassNames($classes);
         $commands = $this->getCommands($classes);
-        
+
         return [
             'commands' => $commands
         ];
@@ -60,29 +55,33 @@ class Help extends ControllerAbstract
 
     private function getClassNames()
     {
-        $finder = new Finder;
-        $finder->is('/\.php$/');
+        $classes = [];
 
-        foreach ($this->service('app.modules') as $module) {
-            foreach ($this->config['search-in'] as $path) {
-                $finder->in($module->getPath() . '/' . $path);
+        foreach ($this->service('modules') as $module) {
+            foreach ($this->config['paths'] as $path) {
+                $path = $module->getPath() . '/' . $path;
+
+                $finder = new Finder;
+                $finder->is('/\.php$/');
+                $finder->in($path);
+
+                foreach ($finder as $file) {
+                    $class = $this->formatClassNameFromFile($path, $file);
+
+                    if (is_subclass_of($class, 'Europa\Controller\ControllerInterface')) {
+                        if (method_exists($class, self::ACTION)) {
+                            $classes[$class] = $class;
+                        }
+                    }
+                }
             }
         }
 
-        $classes = [];
-
-        foreach ($finder as $file) {
-            $class = $this->formatClassNameFromFile($file);
-
-            if (!class_exists($class)) {
-                continue;
-            }
-            
-            $command = str_replace($this->config['namespace'], '', $class);
+        foreach ($classes as $class => $command) {
+            $command = str_replace($this->config['namespace'], '', $command);
             $command = str_replace(['\\', '_'], ' ', $command);
             $command = strtolower($command);
             $command = trim($command);
-            
             $classes[$class] = $command;
         }
 
@@ -100,14 +99,9 @@ class Help extends ControllerAbstract
         $commands = [];
 
         foreach ($classes as $class => $command) {
-            $class = new ClassReflector($class);
-            $name  = $class->getName();
-            
-            if ($class->hasMethod($this->config['action'])) {
-                $method = $class->getMethod($this->config['action']);
-            } else {
-                continue;
-            }
+            $class  = new ClassReflector($class);
+            $name   = $class->getName();
+            $method = $class->getMethod(self::ACTION);
 
             $commands[$command] = $method->getDocBlock()->getDescription();
         }
@@ -149,24 +143,18 @@ class Help extends ControllerAbstract
 
     private function getClassFromCommand($command)
     {
-        var_dump($command);
         $filter = new ClassNameFilter;
         $class  = $filter->__invoke($command);
         $class  = __NAMESPACE__ . '\\' . $class;
-
         return $class;
     }
 
-    private function formatClassNameFromFile(SplFileInfo $file)
+    private function formatClassNameFromFile($path, SplFileInfo $file)
     {
-        $namespace = $this->config['namespace'];
-
-        $class = str_replace(DIRECTORY_SEPARATOR, '\\', $file->getRealpath());
+        $class = substr($file->getRealpath(), strlen($path));
+        $class = str_replace(DIRECTORY_SEPARATOR, '\\', $class);
         $class = str_replace('.php', '', $class);
-        $class = explode("\\{$namespace}\\", $class, 2);
-        $class = "\\{$namespace}\\{$class[1]}";
         $class = trim($class, '\\');
-
         return $class;
     }
 }

@@ -1,4 +1,4 @@
 help-cli:
   pattern: (help|\?)
-  controller: help
+  controller: europaphp/help/controller/help
   action: cli
