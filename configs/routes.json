@@ -1,0 +1,7 @@
+{
+    "europaphp.help.help-cli": {
+        "pattern": "(help|\\?)",
+        "controller": "europaphp/help/controller/help",
+        "action": "cli"
+    }
+}
