@@ -19,7 +19,7 @@ class Help extends ControllerAbstract
      */
     public function cli($command = null)
     {
-        $this->config = $this->service('modules')->get('europaphp/help')->getConfig();
+        $this->config = $this->service('modules')->get('europaphp/help')->config();
 
         if ($command) {
             return $this->getCommand($command);
@@ -59,7 +59,7 @@ class Help extends ControllerAbstract
 
         foreach ($this->service('modules') as $module) {
             foreach ($this->config['paths'] as $path) {
-                $path = $module->getPath() . '/' . $path;
+                $path = $module->path() . '/' . $path;
 
                 $finder = new Finder;
                 $finder->is('/\.php$/');
