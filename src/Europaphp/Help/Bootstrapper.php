@@ -11,13 +11,13 @@ class Bootstrapper extends BootstrapperAbstract
     {
         $router = new Router;
         $router->import($this->module->path() . '/configs/routes.json');
-        $this->injector->get('routers')->append($router);
+        $this->container('routers')->append($router);
     }
 
     public function views()
     {
         $locator = new Locator;
         $locator->addPath($this->module->path() . '/views');
-        $this->injector->get('viewLocators')->append($locator);
+        $this->container('viewLocators')->append($locator);
     }
 }
