@@ -1,4 +1,0 @@
-[{
-    "when": "(help|\\?)",
-    "call": "Europaphp\\Help\\Controller\\Help->cli"
-}]

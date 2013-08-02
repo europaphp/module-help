@@ -1,160 +1,102 @@
 <?php
 
 namespace Europaphp\Help\Controller;
-use Europa\Controller\ControllerAbstract;
-use Europa\Filter\ClassNameFilter;
-use Europa\Fs\Finder;
-use Europa\Reflection\ClassReflector;
-use LogicException;
-use SplFileInfo;
+use Europa\Module;
+use Europa\Reflection;
+use Europa\Request;
+use Europa\Router;
 
-class Help extends ControllerAbstract
+class Help
 {
-    const ACTION = 'cli';
+    private $config;
+
+    private $modules;
+
+    private $router;
+
+    private $controllerResolver;
+
+    public function __construct(
+        Module\ManagerInterface $modules,
+        callable $router,
+        callable $controllerResolver,
+        \ArrayIterator $routers
+    ) {
+        $this->config = $modules->get('europaphp/help')->config();
+        $this->modules = $modules;
+        $this->router = $router;
+        $this->controllerResolver = $controllerResolver;
+        $this->routers = $routers;
+    }
 
     /**
      * Shows the available commands or documentation for a specific command.
-     * 
+     *
+     * @cli
+     *
      * @param string $command The command to show the help for. If not specified, this help is shown.
      */
     public function cli($command = null)
     {
-        $this->config = $this->service('modules')->get('europaphp/help')->config();
-
         if ($command) {
             return $this->getCommand($command);
         }
-        
-        return $this->getAllCommands();
+
+        return [
+            'commands' => $this->getAllCommands()
+        ];
     }
 
     private function getCommand($command)
     {
-        $class  = $this->getClassFromCommand($command);
-        $class  = new ClassReflector($class);
-        $params = $this->getCommandParams($command);
-        $params = $this->sortCommandParams($params);
+        $request = new Request\Cli;
+        $request->setCommand($command);
 
-        return [
-            'command'     => $command,
-            'description' => $class->getMethod($this->config['action'])->getDocBlock()->getDescription(),
-            'params'      => $params
-        ];
+        if ($controller = call_user_func($this->router, $request)) {
+            return $this->resolveCommand($command, $controller);
+        }
     }
 
     private function getAllCommands()
     {
-        $classes  = $this->getClassNames();
-        $classes  = $this->sortClassNames($classes);
-        $commands = $this->getCommands($classes);
+        $commands = [];
 
-        return [
-            'commands' => $commands
-        ];
-    }
-
-    private function getClassNames()
-    {
-        $classes = [];
-
-        foreach ($this->service('modules') as $module) {
-            foreach ($this->config['paths'] as $path) {
-                $path = $module->path() . '/' . $path;
-
-                $finder = new Finder;
-                $finder->is('/\.php$/');
-                $finder->in($path);
-
-                foreach ($finder as $file) {
-                    $class = $this->formatClassNameFromFile($path, $file);
-
-                    if (is_subclass_of($class, 'Europa\Controller\ControllerInterface')) {
-                        if (method_exists($class, self::ACTION)) {
-                            $classes[$class] = $class;
-                        }
+        foreach ($this->routers as $router) {
+            if ($router instanceof Router\RouterInterface) {
+                foreach ($router->routes() as $pattern => $controller) {
+                    if ($command = $this->resolveCommand($pattern, $controller)) {
+                        $commands[] = $command;
                     }
                 }
             }
         }
 
-        foreach ($classes as $class => $command) {
-            $command = str_replace($this->config['namespace'], '', $command);
-            $command = str_replace(['\\', '_'], ' ', $command);
-            $command = strtolower($command);
-            $command = trim($command);
-            $classes[$class] = $command;
-        }
-
-        return $classes;
-    }
-
-    private function sortClassNames(array $classes)
-    {
-        ksort($classes);
-        return $classes;
-    }
-
-    private function getCommands(array $classes)
-    {
-        $commands = [];
-
-        foreach ($classes as $class => $command) {
-            $class  = new ClassReflector($class);
-            $name   = $class->getName();
-            $method = $class->getMethod(self::ACTION);
-
-            $commands[$command] = $method->getDocBlock()->getDescription();
-        }
-
         return $commands;
     }
 
-    private function getCommandParams($command)
+    private function resolveCommand($command, $controller)
     {
-        $class = $this->getClassFromCommand($command);
-        $class = new ClassReflector($class);
+        $controller = new Reflection\CallableReflector($controller);
+        $docblock = $controller->getReflector()->getDocBlock();
 
-        if ($class->hasMethod($this->config['action'])) {
-            $method = $class->getMethod($this->config['action']);
-        } else {
-            throw new LogicException(sprintf('The command "%s" is not valid.', $command));
+        if (!$docblock->hasTag($this->config['tag'])) {
+            return;
         }
 
-        $block  = $method->getDocBlock();
         $params = [];
 
-        if ($block->hasTag('param')) {
-            foreach ($block->getTags('param') as $param) {
-                $params[$param->getName()] = [
-                    'type'        => $param->getType(),
-                    'description' => $param->getDescription()
-                ];
-            }
+        foreach ($docblock->getTags('param') as $tag) {
+            $params[] = [
+                'name' => $tag->getName(),
+                'type' => $tag->getType(),
+                'description' => $tag->getDescription()
+            ];
         }
 
-        return $params;
-    }
-
-    private function sortCommandParams(array $params)
-    {
-        ksort($params);
-        return $params;
-    }
-
-    private function getClassFromCommand($command)
-    {
-        $filter = new ClassNameFilter;
-        $class  = $filter->__invoke($command);
-        $class  = __NAMESPACE__ . '\\' . $class;
-        return $class;
-    }
-
-    private function formatClassNameFromFile($path, SplFileInfo $file)
-    {
-        $class = substr($file->getRealpath(), strlen($path));
-        $class = str_replace(DIRECTORY_SEPARATOR, '\\', $class);
-        $class = str_replace('.php', '', $class);
-        $class = trim($class, '\\');
-        return $class;
+        return [
+            'command' => $command,
+            'description' => $docblock->getDescription(),
+            'params' => $params
+        ];
     }
 }

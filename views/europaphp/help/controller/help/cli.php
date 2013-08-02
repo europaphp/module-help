@@ -1,62 +1,96 @@
-<?php $this->extend('europaphp/main/layout/cli.php'); ?>
-
-<?php if ($this->context('command')): ?>
-<?php echo $this->context('description') . PHP_EOL; ?>
-
-Usage
------
-
 <?php
 
-echo $this->helper('cli')->color('bin/cli', 'yellow');
-echo ' ';
-echo $this->helper('cli')->color($this->context('command'), 'green');
+$this->extend('Europaphp/Main/Layout/cli');
 
-if ($this->context('params')) {
-    echo $this->helper('cli')->color(' [options]', 'cyan');
+if ($this->context('command')) {
+  echo $this->context('description')
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo $this->helper('cli')->color('Usage', 'cyan')
+    . PHP_EOL
+    . $this->helper('cli')->color('-----', 'cyan')
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo '    '
+    . $this->helper('cli')->color($_SERVER['PHP_SELF'], 'yellow')
+    . ' '
+    . $this->context('command');
+
+  if ($this->context('params')) {
+    echo ' [options]'
+      . PHP_EOL
+      . PHP_EOL;
+  }
+
+  if ($this->context('params')) {
+    echo $this->helper('cli')->color('Options', 'cyan')
+      . PHP_EOL
+      . $this->helper('cli')->color('-------', 'cyan')
+      . PHP_EOL
+      . PHP_EOL;
+
+    foreach ($this->context('params') as $index => $param) {
+      echo $index + 1
+        . '. '
+        . '`'
+        . $this->helper('cli')->color($param['name'], 'green')
+        . '` `'
+        . $this->helper('cli')->color($param['type'], 'yellow')
+        . '` '
+        . $param['description']
+        . PHP_EOL;
+    }
+  }
+} else {
+  echo 'This following information is generated from your controllers.'
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo $this->helper('cli')->color('Usage', 'cyan')
+    . PHP_EOL
+    . $this->helper('cli')->color('-----', 'cyan')
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo '    '
+    . $this->helper('cli')->color($_SERVER['PHP_SELF'] . ' [command] [options]', 'yellow')
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo 'To see the documentation for a specific command, run:'
+    . PHP_EOL
+    . PHP_EOL
+    . '    ' . $this->helper('cli')->color($_SERVER['PHP_SELF'] . ' --command [command]', 'yellow')
+    . PHP_EOL
+    . PHP_EOL;
+
+  echo $this->helper('cli')->color('Available Commands', 'cyan')
+    . PHP_EOL
+    . $this->helper('cli')->color('------------------', 'cyan')
+    . PHP_EOL
+    . PHP_EOL;
+
+  if ($commands = $this->context('commands')) {
+    foreach ($commands as $command) {
+      echo '* `'
+        . $this->helper('cli')->color($command['command'], 'green')
+        . '` '
+        . $command['description']
+        . PHP_EOL;
+    }
+  } else {
+    echo 'There are no commands.'
+      . PHP_EOL;
+  }
+
+  echo PHP_EOL;
+  echo $this->helper('cli')->color('1.', 'cyan')
+    . ' To author your own command, simply create a controller and annotate it with a '
+    . $this->helper('cli')->color('@cli', 'green')
+    . ' tag.'
+    . PHP_EOL;
+  echo $this->helper('cli')->color('2.', 'cyan')
+    . ' To document commands, just update the doc blocks of the action you want to document.';
 }
-
-if ($this->context('params')):
-
-?>
-
-
-Options
--------
-<?php
-
-foreach ($this->context('params') as $name => $param) {
-    echo '  ' . $this->helper('cli')->color(str_replace('$', '--', $name), 'green');
-    echo ' ' . $param['description'];
-    echo PHP_EOL;
-}
-
-endif;
-else:
-
-?>
-
-Usage
------
-
-<?php echo $this->helper('cli')->color('php www/index.php [command] [options]' . PHP_EOL, 'yellow'); ?>
-
-To see the documentation for a specific command, run:
-  <?php echo $this->helper('cli')->color('php www/index.php help --command [command]' . PHP_EOL, 'yellow'); ?>
-
-<?php echo $this->helper('cli')->color('Available Commands' . PHP_EOL, 'cyan'); ?>
-<?php echo $this->helper('cli')->color('------------------' . PHP_EOL, 'cyan'); ?>
-
-<?php
-
-foreach ($this->context('commands') as $command => $description) {
-    echo $this->helper('cli')->color($command, 'green'); ?> <?php echo $description;
-    echo PHP_EOL;
-}
-
-?>
-
-<?php echo $this->helper('cli')->color('*', 'cyan'); ?> To document commands, just update the doc blocks of the <?php echo $this->helper('cli')->color('cli', 'cyan'); ?> action you want to document.
-<?php echo $this->helper('cli')->color('*', 'cyan'); ?> To author your own command, simply create a controller and give it a <?php echo $this->helper('cli')->color('cli', 'cyan'); ?> action.
-
-<?php endif; ?>
