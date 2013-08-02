@@ -1,6 +1,6 @@
 <?php
 
-$this->extend('Europaphp/Main/Layout/cli');
+$this->extend('europaphp/main/layout/cli');
 
 if ($this->context('command')) {
   echo $this->context('description')
