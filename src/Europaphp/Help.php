@@ -12,17 +12,17 @@ class Help extends ModuleAbstract
   const VERSION = '0.1.0';
 
   protected $config = [
-    'tag' => 'cli'
+  'tag' => 'cli'
   ];
 
   protected $dependencies = [
-    'europaphp/main' => '0.1.0'
+  'europaphp/main' => '0.1.0'
   ];
 
   protected $routes = [
-    [
-      'when' => 'CLI (help|\?)?',
-      'call' => 'Europaphp\Help\Controller\Help->cli'
-    ]
+  [
+    'when' => 'CLI (help|\?)?',
+    'call' => 'Europaphp\Help\Controller\Help->cli'
+  ]
   ];
 }
