@@ -1,26 +1,26 @@
 {
-    "name": "europaphp/module-help",
-    "description": "Command Line Help Module for EuropaPHP 2",
-    "keywords": ["cli", "help", "man"],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Trey Shugart",
-            "email": "treshugart@gmail.com",
-            "homepage": "http://iamtres.com",
-            "role": "Lead Developer"
-        }
-    ],
-    "autoload": {
-        "psr-0": {
-            "": "src"
-        }
-    },
-    "require": {
-        "europaphp/module": "dev-master",
-        "europaphp/reflection": "dev-master",
-        "europaphp/request": "dev-master",
-        "europaphp/router": "dev-master",
-        "europaphp/module-main": "dev-master"
+  "name": "europaphp/module-help",
+  "description": "Command Line Help Module for EuropaPHP 2",
+  "keywords": ["cli", "help", "man"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Trey Shugart",
+      "email": "treshugart@gmail.com",
+      "homepage": "http://iamtres.com",
+      "role": "Lead Developer"
     }
+  ],
+  "autoload": {
+    "psr-0": {
+      "": "src"
+    }
+  },
+  "require": {
+    "europaphp/component-module": "dev-master",
+    "europaphp/component-reflection": "dev-master",
+    "europaphp/component-request": "dev-master",
+    "europaphp/component-router": "dev-master",
+    "europaphp/module-main": "dev-master"
+  }
 }
