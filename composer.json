@@ -17,6 +17,10 @@
         }
     },
     "require": {
+        "europaphp/module": "dev-master",
+        "europaphp/reflection": "dev-master",
+        "europaphp/request": "dev-master",
+        "europaphp/router": "dev-master",
         "europaphp/module-main": "dev-master"
     }
 }
