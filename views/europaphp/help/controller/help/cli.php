@@ -13,7 +13,7 @@ if ($this->context('command')) {
     . PHP_EOL
     . PHP_EOL;
 
-  echo '  '
+  echo '    '
     . $this->helper('cli')->color($_SERVER['PHP_SELF'], 'yellow')
     . ' '
     . $this->context('command');
@@ -30,15 +30,14 @@ if ($this->context('command')) {
       . $this->helper('cli')->color('-------', 'cyan')
       . PHP_EOL
       . PHP_EOL;
-  
+
     foreach ($this->context('params') as $index => $param) {
       echo $index + 1
         . '. '
-        . '`'
-        . $this->helper('cli')->color($param['name'], 'green')
-        . '` `'
-        . $this->helper('cli')->color($param['type'], 'yellow')
-        . '` '
+        . $this->helper('cli')->color('`' . $param['name'] . '`', 'green')
+        . ' '
+        . $this->helper('cli')->color('`' . $param['type'] . '`', 'yellow')
+        . ' '
         . $param['description']
         . PHP_EOL;
     }
@@ -54,7 +53,7 @@ if ($this->context('command')) {
     . PHP_EOL
     . PHP_EOL;
 
-  echo '  '
+  echo '    '
     . $this->helper('cli')->color($_SERVER['PHP_SELF'] . ' [command] [options]', 'yellow')
     . PHP_EOL
     . PHP_EOL;
@@ -62,7 +61,7 @@ if ($this->context('command')) {
   echo 'To see the documentation for a specific command, run:'
     . PHP_EOL
     . PHP_EOL
-    . '  ' . $this->helper('cli')->color($_SERVER['PHP_SELF'] . ' --command [command]', 'yellow')
+    . '    ' . $this->helper('cli')->color($_SERVER['PHP_SELF'] . ' --command [command]', 'yellow')
     . PHP_EOL
     . PHP_EOL;
 
@@ -74,9 +73,9 @@ if ($this->context('command')) {
 
   if ($commands = $this->context('commands')) {
     foreach ($commands as $command) {
-      echo '* `'
-        . $this->helper('cli')->color($command['command'], 'green')
-        . '` '
+      echo '* '
+        . $this->helper('cli')->color('`' . $command['command'] . '`', 'green')
+        . ' '
         . $command['description']
         . PHP_EOL;
     }
@@ -88,7 +87,7 @@ if ($this->context('command')) {
   echo PHP_EOL;
   echo $this->helper('cli')->color('1.', 'cyan')
     . ' To author your own command, simply create a controller and annotate it with a '
-    . $this->helper('cli')->color('@cli', 'green')
+    . $this->helper('cli')->color('`@cli`', 'green')
     . ' tag.'
     . PHP_EOL;
   echo $this->helper('cli')->color('2.', 'cyan')
